@@ -464,7 +464,7 @@ h1.glitch {
     font-size: 2.5rem;
     letter-spacing: 3px;
     color: #555;
-    text-transform: uppercase;
+    /* text-transform: uppercase; Removed for Title Case support */
     font-weight: bold;
     background: rgba(0, 0, 0, 0.6);
     padding: 5px 15px;
@@ -658,7 +658,7 @@ h1.glitch {
     font-family: var(--font-main);
     cursor: pointer;
     transition: all 0.2s;
-    text-transform: uppercase;
+    /* text-transform: uppercase; Removed for Title Case support */
 }
 
 .quiz-option:hover {
