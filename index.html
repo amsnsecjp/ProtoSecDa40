@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecDa - Security Typing Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="scan-line"></div>
+    <div id="game-container">
+        <!-- Start Screen -->
+        <div id="start-screen" class="screen active">
+            <h1 class="glitch" data-text="SecDa">SecDa</h1>
+            <p class="subtitle">SECURITY TYPING DATA</p>
+            <p class="instruction">PRESS SPACE TO INITIATE</p>
+        </div>
+
+        <!-- Difficulty Selection Screen -->
+        <div id="difficulty-screen" class="screen">
+            <h2>SELECT MODE</h2>
+
+            <!-- Theme Selector -->
+            <div id="theme-selector">
+                <div class="theme-option" data-color="#00ff41"
+                    style="background: #00ff41; box-shadow: 0 0 10px #00ff41;"></div> <!-- Green -->
+                <div class="theme-option" data-color="#00e5ff"
+                    style="background: #00e5ff; box-shadow: 0 0 10px #00e5ff;"></div> <!-- Cyan -->
+                <div class="theme-option" data-color="#ff0055"
+                    style="background: #ff0055; box-shadow: 0 0 10px #ff0055;"></div> <!-- Red -->
+                <div class="theme-option" data-color="#ff9900"
+                    style="background: #ff9900; box-shadow: 0 0 10px #ff9900;"></div> <!-- Orange -->
+                <div class="theme-option" data-color="#bb00ff"
+                    style="background: #bb00ff; box-shadow: 0 0 10px #bb00ff;"></div> <!-- Purple -->
+            </div>
+
+            <div class="difficulty-options">
+                <button class="diff-btn" data-diff="easy" data-goal="3000">
+                    SCRIPT KIDDIE (EASY)
+                    <span class="diff-desc">Slow threats. Goal: 3,000 Reliability</span>
+                </button>
+                <button class="diff-btn" data-diff="normal" data-goal="10000">
+                    HACKER (NORMAL)
+                    <span class="diff-desc">Medium threats. Goal: 10,000 Reliability</span>
+                </button>
+                <button class="diff-btn" data-diff="hard" data-goal="30000">
+                    CISO (HARD)
+                    <span class="diff-desc">Fast threats. Goal: 30,000 Reliability</span>
+                </button>
+                <button class="diff-btn" data-diff="expert" data-goal="50000">
+                    EXPERT (BLIND)
+                    <span class="diff-desc">Normal Speed. Blind Typing. Goal: 60,000</span>
+                </button>
+
+                <div class="divider" style="height: 1px; background: #333; margin: 10px 0;"></div>
+
+                <button class="diff-btn study-btn" id="start-study-btn">
+                    STUDY MODE (QUIZ)
+                    <span class="diff-desc">10 Questions. 90 Seconds. Test your knowledge.</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Intro Screen -->
+        <div id="intro-screen" class="screen">
+            <div id="intro-content">
+                <h2>SYSTEM GUIDANCE</h2>
+                <p>
+                    本ゲームは寿司打も模したセキュリティ単語タイピングゲームです。<br>
+                    セキュリティ単語は日本語で出ますが、英単語でタイピング入力してください。<br>
+                    STUDYモードで学習のみもできます。
+                </p>
+                <button id="intro-next-btn">ACKNOWLEDGE</button>
+            </div>
+        </div>
+
+        <!-- Ready Screen -->
+        <div id="ready-screen" class="screen">
+            <h2 class="blink-text">READY?</h2>
+            <p>Press SPACE or ENTER to Start</p>
+        </div>
+
+        <!-- Countdown Screen -->
+        <div id="countdown-screen" class="screen">
+            <div id="countdown-number">3</div>
+        </div>
+
+        <!-- Quiz Interface (Study Mode) -->
+        <div id="quiz-screen" class="screen">
+            <div id="quiz-hud">
+                <div class="quiz-timer">TIME: <span id="quiz-time">90</span></div>
+                <div id="quiz-control-cluster">
+                    <button id="quiz-interrupt-btn">INTERRUPT</button>
+                </div>
+                <div class="quiz-progress">QUESTION: <span id="quiz-current">1</span> / 10</div>
+            </div>
+
+            <div id="quiz-content">
+                <h2 id="quiz-question-text">Target Word</h2>
+                <div class="quiz-options-grid" id="quiz-options">
+                    <button class="quiz-option">Option A</button>
+                    <button class="quiz-option">Option B</button>
+                    <button class="quiz-option">Option C</button>
+                    <button class="quiz-option">Option D</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Interface -->
+        <div id="game-screen" class="screen">
+            <div id="hud-top">
+                <div class="score-box">RELIABILITY: <span id="score">0</span> / <span id="goal-display">0</span></div>
+                <div class="timer-box">TIME: <span id="timer">60</span></div>
+                <div id="control-cluster">
+                    <button id="interrupt-btn">INTERRUPT</button>
+                    <button id="back-to-top-btn" class="hidden">TOP</button>
+                </div>
+            </div>
+
+            <div id="game-field">
+                <div id="malware-zone">
+                    <div class="malware-icon">👾</div>
+                    <div class="zone-label">INTERNET</div>
+                </div>
+
+                <div id="track-lanes">
+                    <!-- Words will spawn here and move right -->
+                </div>
+
+                <div id="company-zone">
+                    <div class="company-icon">🏢</div>
+                    <div class="zone-label">CORPORATE HQ</div>
+                    <div id="shield-meter"></div>
+                </div>
+            </div>
+
+            <!-- Typing Display (Currently focused word) -->
+            <div id="current-target-display">
+                <div id="japanese-word"></div>
+                <div id="romaji-word"></div>
+            </div>
+
+            <div id="combo-display">COMBO: <span id="combo">0</span></div>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="result-screen" class="screen">
+            <h2 id="result-title">MISSION COMPLETE</h2>
+
+            <!-- Typing Result -->
+            <div id="typing-result-stats" class="result-stats">
+                <p>FINAL RELIABILITY: <span id="final-score">0</span></p>
+                <p>MAX COMBO: <span id="final-combo">0</span></p>
+                <p>EVALUATION: <span id="rank-grade">-</span></p>
+            </div>
+
+            <!-- Quiz Result -->
+            <div id="quiz-result-stats" class="result-stats hidden">
+                <p>SCORE: <span id="quiz-final-score">0</span> / 10</p>
+                <div id="quiz-review-list">
+                    <!-- Dynamic List of Results -->
+                </div>
+            </div>
+
+            <button id="retry-btn">REBOOT SYSTEM</button>
+        </div>
+    </div>
+    <script src="js/words.js"></script>
+    <script src="js/script.js"></script>
+</body>
+
+</html>
