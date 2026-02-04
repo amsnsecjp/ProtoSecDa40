@@ -657,23 +657,16 @@ function handleGlobalKeyInput(e) {
         comboDisplay.innerText = combo;
 
         // --- Time Extension Logic ---
-        // 20: +5s
-        // 40: +5s
-        // 60: +10s
-        // 80: +10s
-        // >80 && %20 == 0: +5s
-        let addTime = 0;
-        if (combo === 20 || combo === 40) {
-            addTime = 5;
-        } else if (combo === 60 || combo === 80) {
-            addTime = 10;
-            // } else if (combo > 80 && combo % 20 === 0) { // Optional infinite
-            //     addTime = 5;
-        } else if (combo > 80 && (combo - 80) % 20 === 0) {
-            addTime = 5;
-        }
+        // Every 25 chars:
+        // 1st (25): +1s, 2nd (50): +2s, 3rd (75): +3s, Thereafter: +1s
+        if (combo > 0 && combo % 25 === 0) {
+            const count = combo / 25;
+            let addTime = 1;
+            if (count === 1) addTime = 1;
+            else if (count === 2) addTime = 2;
+            else if (count === 3) addTime = 3;
+            else addTime = 1;
 
-        if (addTime > 0) {
             timeLeft += addTime;
             timerDisplay.innerText = timeLeft;
             const timerBox = document.querySelector('.timer-box');
