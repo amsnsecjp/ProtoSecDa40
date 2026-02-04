@@ -302,6 +302,7 @@ function startGame(difficulty) {
 
 function startStudyMode() {
     gameMode = 'study';
+    isPlaying = true; // Enable pause/game loop logic
     updateScreen('quiz');
 
     // Gen Questions
@@ -369,17 +370,34 @@ function showQuestion() {
     });
 }
 
+// Add at top with other elements: const quizFeedback = document.getElementById('quiz-feedback');
+
 function handleAnswer(choice, btnElement) {
     const q = quizQuestions[quizIndex];
     q.userAnswer = choice;
+
+    // Feedback Logic
+    const quizFeedback = document.getElementById('quiz-feedback');
+    quizFeedback.className = ''; // Reset
 
     if (choice === q.correct) {
         q.isCorrect = true;
         quizScore++;
         btnElement.classList.add('correct');
+
+        // Show Circle
+        quizFeedback.innerText = "〇";
+        quizFeedback.classList.add('correct');
+        quizFeedback.classList.add('show');
     } else {
         q.isCorrect = false;
         btnElement.classList.add('wrong');
+
+        // Show Cross
+        quizFeedback.innerText = "×";
+        quizFeedback.classList.add('wrong');
+        quizFeedback.classList.add('show');
+
         // Show correct one
         Array.from(quizOptionsGrid.children).forEach(b => {
             if (b.innerText === q.correct) b.classList.add('correct');
@@ -388,6 +406,7 @@ function handleAnswer(choice, btnElement) {
 
     // Wait a bit then next
     setTimeout(() => {
+        quizFeedback.classList.remove('show'); // Hide
         quizIndex++;
         if (quizIndex >= quizQuestions.length) {
             endStudyGame();
@@ -426,14 +445,13 @@ function endStudyGame() {
 // --- Common Logic ---
 
 function getDifficultySettings(diff) {
-    // Custom handling for Expert which borrows speed from Normal
+    // Custom handling for Expert
     if (diff === 'expert') {
-        // defined in index.html as data-goal="60000" usually, but here:
         return {
-            name: "EXPERT",
-            speed: DIFFICULTY_SETTINGS['normal'].speed, // NORMAL SPEED
+            name: "PREDATOR",
+            speed: 5.0, // Faster than Hard (4.5)
             spawnRate: 1000,
-            goal: 50000
+            goal: 70000
         };
     }
     return DIFFICULTY_SETTINGS[diff];
@@ -519,15 +537,11 @@ function spawnWord() {
     const version = Math.floor(Math.random() * 4) + 1; // 1 to 4
     el.classList.add(`malware-v${version}`);
 
-    // If EXPERT, don't show EN text locally (CSS hides it too, but safe to omit or keep for debugging)
-    // We kept styles to hide .word-en-display in CSS for expert-mode
-    el.innerHTML = `
-        <div class="word-jp">${wordData.jp}</div>
-        <div class="word-en-display">${wordData.en}</div>
-    `;
+    // Show ONLY Japanese text for ALL difficulties
+    el.innerHTML = `<div class="word-jp">${wordData.jp}</div>`;
 
-    // Vertical centering (middle of track lanes)
-    el.style.top = '50%';
+    // Vertical centering (Higher up to avoid collision)
+    el.style.top = '35%';
     el.style.transform = 'translateY(-50%)';
     el.style.left = '0%'; // Start from LEFT
 
@@ -611,6 +625,12 @@ function handleGlobalKeyInput(e) {
     }
 
     if (e.key.length !== 1 || e.ctrlKey || e.altKey || e.metaKey) return;
+
+    // Ignore space during game (auto-skipped)
+    if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault(); // Prevent scrolling or button pressing
+        return;
+    }
 
     const inputChar = e.key.toUpperCase();
 
@@ -713,20 +733,6 @@ function completeWord(index) {
 }
 
 // Add shake animation
-const styleSheet = document.createElement("style");
-styleSheet.innerText = `
-@keyframes shake {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(-5px); }
-    50% { transform: translateX(5px); }
-    75% { transform: translateX(-5px); }
-    100% { transform: translateX(0); }
-}
-.shake {
-    animation: shake 0.2s;
-    color: var(--error-color) !important;
-}
-`;
-document.head.appendChild(styleSheet);
+// Add shake animation (Moved to style.css)
 
 init();

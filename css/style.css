@@ -389,16 +389,18 @@ h1.glitch {
 }
 
 /* Expert Mode - Hidden Text */
+/* Expert Mode - Hidden Text */
 #game-screen.expert-mode #romaji-word .char-untyped {
-    color: transparent;
-    text-shadow: none;
-    border-bottom: 2px solid #555;
-    /* Show line length hint */
+    display: none;
+}
+
+#game-screen.expert-mode #romaji-word .char-typed {
+    display: inline;
 }
 
 /* Expert mode: Hide moving EN text */
 #game-screen.expert-mode .word-en-display {
-    display: none;
+    display: none !important;
 }
 
 .hidden {
@@ -718,4 +720,58 @@ h1.glitch {
 ::-webkit-scrollbar-thumb {
     background: #333;
     border-radius: 4px;
+}
+
+/* Quiz Feedback Overlay */
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+
+    25% {
+        transform: translateX(-5px);
+    }
+
+    50% {
+        transform: translateX(5px);
+    }
+
+    75% {
+        transform: translateX(-5px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
+}
+
+.shake {
+    animation: shake 0.2s;
+    color: var(--error-color) !important;
+}
+
+#quiz-feedback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 15rem;
+    font-weight: bold;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    z-index: 20;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+#quiz-feedback.show {
+    opacity: 1;
+}
+
+#quiz-feedback.correct {
+    color: var(--accent-color);
+}
+
+#quiz-feedback.wrong {
+    color: var(--error-color);
 }
