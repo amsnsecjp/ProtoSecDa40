@@ -4,7 +4,7 @@ const GAME_DURATION = 60; // seconds
 // Difficulty Settings
 const DIFFICULTY_SETTINGS = {
     easy: { name: "SCRIPT KIDDIE", speed: 1.5, spawnRate: 1000, goal: 3000 },
-    normal: { name: "HACKER", speed: 3.0, spawnRate: 1000, goal: 10000 },
+    normal: { name: "HACKER", speed: 3.0, spawnRate: 1000, goal: 15000 },
     hard: { name: "CISO", speed: 4.5, spawnRate: 1000, goal: 30000 }
 };
 
@@ -789,12 +789,9 @@ function handleGlobalKeyInput(e) {
         // Every 25 chars:
         // 1st (25): +1s, 2nd (50): +2s, 3rd (75): +3s, Thereafter: +1s
         if (combo > 0 && combo % 25 === 0) {
-            const count = combo / 25;
-            let addTime = 1;
-            if (count === 1) addTime = 1;
-            else if (count === 2) addTime = 2;
-            else if (count === 3) addTime = 3;
-            else addTime = 1;
+            let addTime = 3; // Default for 50, 75, 125, etc.
+            if (combo === 25) addTime = 2;
+            else if (combo === 100) addTime = 5;
 
             timeLeft += addTime;
             timerDisplay.innerText = timeLeft;
@@ -831,7 +828,7 @@ function completeWord(index) {
     romajiWordDisplay.innerText = "";
 
     // Score Calculation (Original + Length Bonus)
-    const basePts = 50 + (length * 30);
+    const basePts = 50 + (length * 45);
 
     // Apply 1.5x Multiplier as requested
     const finalPts = Math.floor(basePts * 1.5);
