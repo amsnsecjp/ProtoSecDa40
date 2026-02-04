@@ -190,8 +190,8 @@ function renderWordList(filterText) {
 
         // Highlight logic could go here, but simple text is fine for now
         row.innerHTML = `
-            <span style="color: var(--accent-color);">${term.jp}</span>
-            <span style="color: #ccc;">${term.en}</span>
+            <span style="color: var(--accent-color);">${term.en}</span>
+            <span style="color: #ccc;">${term.jp}</span>
         `;
         listContainer.appendChild(row);
     });
@@ -761,13 +761,13 @@ function handleGlobalKeyInput(e) {
         return;
     }
 
-    const inputChar = e.key.toUpperCase();
+    const inputChar = e.key.toLowerCase();
 
     // With single word, activeWords[0] is the only target
     if (activeWords.length === 0) return;
 
     const targetWordObj = activeWords[0];
-    const targetStr = targetWordObj.wordData.en;
+    const targetStr = targetWordObj.wordData.en.toLowerCase();
 
     if (inputChar === targetStr[currentCharIndex]) {
         // Correct Char
