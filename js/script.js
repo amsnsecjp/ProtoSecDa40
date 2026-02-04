@@ -100,10 +100,10 @@ function init() {
     interruptBtn.addEventListener('click', togglePause);
     quizInterruptBtn.addEventListener('click', togglePause);
 
-    // Back to Top Logic
+    // Back to Menu Logic (from Pause)
     backToTopBtn.addEventListener('click', () => {
         if (!isPaused) return;
-        endGame(true);
+        endGame('difficulty');
     });
 
     // Theme Selector
@@ -126,7 +126,7 @@ function init() {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const diff = e.currentTarget.dataset.diff;
-            waitForReady(() => {
+            waitForReady(diff, () => {
                 startCountdown(() => startGame(diff));
             });
         });
@@ -181,17 +181,44 @@ function updateScreen(screenName) {
     }
 }
 
-function waitForReady(onReady) {
+const readyBackBtn = document.getElementById('ready-back-btn');
+let readyKeyHandler = null;
+
+function waitForReady(difficulty, onReady) {
     updateScreen('ready');
 
-    const handler = (e) => {
+    // Custom Instruction for Expert
+    const readyMsg = document.getElementById('ready-message');
+    if (difficulty === 'expert') {
+        readyMsg.innerHTML = "Press SPACE or ENTER to Start<br><span style='font-size:1.2em; color:#ffdd00; font-weight:bold; display:block; margin-top:15px; text-shadow:0 0 10px rgba(255,221,0,0.5);'>⚠️ In Game: Press ENTER to SKIP word ⚠️</span>";
+    } else {
+        readyMsg.innerText = "Press SPACE or ENTER to Start";
+    }
+
+    if (readyKeyHandler) window.removeEventListener('keydown', readyKeyHandler);
+
+    readyKeyHandler = (e) => {
         if (e.code === 'Space' || e.code === 'Enter') {
-            window.removeEventListener('keydown', handler);
+            window.removeEventListener('keydown', readyKeyHandler);
+            readyKeyHandler = null;
             onReady();
         }
     };
-    window.addEventListener('keydown', handler);
+    window.addEventListener('keydown', readyKeyHandler);
 }
+
+
+// --- Logic Updates for Navigation ---
+
+// Init Listener for Ready Back
+readyBackBtn.addEventListener('click', () => {
+    if (readyKeyHandler) {
+        window.removeEventListener('keydown', readyKeyHandler);
+        readyKeyHandler = null;
+    }
+    updateScreen('difficulty');
+});
+
 
 function startCountdown(onComplete) {
     updateScreen('countdown');
@@ -448,13 +475,38 @@ function getDifficultySettings(diff) {
     // Custom handling for Expert
     if (diff === 'expert') {
         return {
-            name: "PREDATOR",
-            speed: 5.0, // Faster than Hard (4.5)
+            name: "EXPERT",
+            speed: 3.0, // Match Normal Speed
             spawnRate: 1000,
-            goal: 70000
+            goal: 10000 // Match Normal Goal
         };
     }
     return DIFFICULTY_SETTINGS[diff];
+}
+
+// ... (omitted shared code) ...
+
+function updateTargetDisplay(wordObj) {
+    jpWordDisplay.innerText = wordObj.wordData.jp;
+    const enStr = wordObj.wordData.en;
+
+    let html = '';
+    for (let i = 0; i < enStr.length; i++) {
+        if (i < currentCharIndex) {
+            // Typed: Show char
+            html += `<span class="char-typed">${enStr[i]}</span>`;
+        } else {
+            // Un-typed
+            if (currentDifficulty === 'expert') {
+                // Blind Mode: Show Underscore
+                html += `<span class="char-untyped">_</span>`;
+            } else {
+                // Normal Mode: Show Char
+                html += `<span class="char-untyped">${enStr[i]}</span>`;
+            }
+        }
+    }
+    romajiWordDisplay.innerHTML = html;
 }
 
 function startTimer() {
@@ -463,12 +515,12 @@ function startTimer() {
         timeLeft--;
         timerDisplay.innerText = timeLeft;
         if (timeLeft <= 0) {
-            endGame(false);
+            endGame(null);
         }
     }, 1000);
 }
 
-function endGame(forceToTitle = false) {
+function endGame(redirectTarget = null) {
     isPlaying = false;
     clearInterval(timerInterval);
     cancelAnimationFrame(gameLoopId);
@@ -483,8 +535,8 @@ function endGame(forceToTitle = false) {
     quizInterruptBtn.style.borderColor = "";
     backToTopBtn.classList.add('hidden');
 
-    if (forceToTitle) {
-        updateScreen('start');
+    if (redirectTarget) {
+        updateScreen(redirectTarget);
         return;
     }
 
@@ -624,11 +676,20 @@ function handleGlobalKeyInput(e) {
         return;
     }
 
+    // Expert Mode: Enter to SKIP word
+    if (gameMode === 'typing' && currentDifficulty === 'expert' && (e.code === 'Enter' || e.key === 'Enter')) {
+        e.preventDefault();
+        // Skip penalty: Reset combo, lose score same as collision (500)
+        // Treat as collision/miss
+        handleCollision(0); // 0 is index of active word (always 0 in single-flow)
+        return;
+    }
+
     if (e.key.length !== 1 || e.ctrlKey || e.altKey || e.metaKey) return;
 
     // Ignore space during game (auto-skipped)
     if (e.key === ' ' || e.code === 'Space') {
-        e.preventDefault(); // Prevent scrolling or button pressing
+        e.preventDefault();
         return;
     }
 
@@ -694,10 +755,17 @@ function updateTargetDisplay(wordObj) {
     let html = '';
     for (let i = 0; i < enStr.length; i++) {
         if (i < currentCharIndex) {
+            // Typed: Show char
             html += `<span class="char-typed">${enStr[i]}</span>`;
         } else {
-            // Un-typed chars
-            html += `<span class="char-untyped">${enStr[i]}</span>`;
+            // Un-typed
+            if (currentDifficulty === 'expert') {
+                // Blind Mode: Show Underscore (Space for visibility)
+                html += `<span class="char-untyped" style="margin:0 2px;">_</span>`;
+            } else {
+                // Normal Mode: Show Char
+                html += `<span class="char-untyped">${enStr[i]}</span>`;
+            }
         }
     }
     romajiWordDisplay.innerHTML = html;
