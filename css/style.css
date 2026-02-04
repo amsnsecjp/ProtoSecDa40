@@ -180,6 +180,11 @@ h1.glitch {
 }
 
 /* Difficulty Screen */
+#difficulty-screen {
+    justify-content: flex-start;
+    padding-top: 40px;
+}
+
 .difficulty-options {
     display: flex;
     flex-direction: column;

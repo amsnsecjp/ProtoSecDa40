@@ -120,9 +120,33 @@ function init() {
         startCountdown(() => startStudyMode());
     });
 
+    // Word List
+    const wordListBtn = document.getElementById('word-list-btn');
+    const wordListBackBtn = document.getElementById('word-list-back-btn');
+
+    wordListBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openWordList();
+    });
+
+    wordListBackBtn.addEventListener('click', () => {
+        updateScreen('difficulty');
+    });
+
+    const wordSearchInput = document.getElementById('word-search-input');
+    wordSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        renderWordList(query);
+    });
+
+    wordSearchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        renderWordList(query);
+    });
+
     // Start Typing Game (Ready Screen -> Countdown -> Start)
     diffButtons.forEach(btn => {
-        if (btn.classList.contains('study-btn')) return;
+        if (btn.classList.contains('study-btn') || btn.id === 'word-list-btn') return;
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const diff = e.currentTarget.dataset.diff;
@@ -133,6 +157,44 @@ function init() {
     });
 
     updateScreen('start');
+}
+
+function openWordList() {
+    const input = document.getElementById('word-search-input');
+    input.value = ''; // Reset search
+    renderWordList('');
+
+    updateScreen('word-list');
+}
+
+function renderWordList(filterText) {
+    const listContainer = document.getElementById('word-list-container');
+    listContainer.innerHTML = '';
+
+    // Filter
+    const filtered = termList.filter(t =>
+        t.jp.includes(filterText) || t.en.toLowerCase().includes(filterText)
+    );
+
+    if (filtered.length === 0) {
+        listContainer.innerHTML = '<div style="padding:10px; color:#888;">No matches found.</div>';
+        return;
+    }
+
+    filtered.forEach((term, idx) => {
+        const row = document.createElement('div');
+        row.style.borderBottom = '1px solid #333';
+        row.style.padding = '8px';
+        row.style.display = 'flex';
+        row.style.justifyContent = 'space-between';
+
+        // Highlight logic could go here, but simple text is fine for now
+        row.innerHTML = `
+            <span style="color: var(--accent-color);">${term.jp}</span>
+            <span style="color: #ccc;">${term.en}</span>
+        `;
+        listContainer.appendChild(row);
+    });
 }
 
 function setTheme(color) {
@@ -178,6 +240,8 @@ function updateScreen(screenName) {
         countdownScreen.classList.add('active');
     } else if (screenName === 'ready') {
         readyScreen.classList.add('active');
+    } else if (screenName === 'word-list') { // New Screen
+        document.getElementById('word-list-screen').classList.add('active');
     }
 }
 
@@ -484,7 +548,7 @@ function getDifficultySettings(diff) {
     return DIFFICULTY_SETTINGS[diff];
 }
 
-// ... (omitted shared code) ...
+
 
 function updateTargetDisplay(wordObj) {
     jpWordDisplay.innerText = wordObj.wordData.jp;
@@ -498,8 +562,12 @@ function updateTargetDisplay(wordObj) {
         } else {
             // Un-typed
             if (currentDifficulty === 'expert') {
-                // Blind Mode: Show Underscore
-                html += `<span class="char-untyped">_</span>`;
+                // Blind Mode: Show First Char, rest Underscore
+                if (i === 0) {
+                    html += `<span class="char-untyped">${enStr[i]}</span>`;
+                } else {
+                    html += `<span class="char-untyped" style="margin:0 2px;">_</span>`;
+                }
             } else {
                 // Normal Mode: Show Char
                 html += `<span class="char-untyped">${enStr[i]}</span>`;
@@ -748,28 +816,7 @@ function handleGlobalKeyInput(e) {
     }
 }
 
-function updateTargetDisplay(wordObj) {
-    jpWordDisplay.innerText = wordObj.wordData.jp;
-    const enStr = wordObj.wordData.en;
 
-    let html = '';
-    for (let i = 0; i < enStr.length; i++) {
-        if (i < currentCharIndex) {
-            // Typed: Show char
-            html += `<span class="char-typed">${enStr[i]}</span>`;
-        } else {
-            // Un-typed
-            if (currentDifficulty === 'expert') {
-                // Blind Mode: Show Underscore (Space for visibility)
-                html += `<span class="char-untyped" style="margin:0 2px;">_</span>`;
-            } else {
-                // Normal Mode: Show Char
-                html += `<span class="char-untyped">${enStr[i]}</span>`;
-            }
-        }
-    }
-    romajiWordDisplay.innerHTML = html;
-}
 
 function completeWord(index) {
     const wordObj = activeWords[index];

@@ -57,11 +57,30 @@
 
                 <div class="divider" style="height: 1px; background: #333; margin: 10px 0;"></div>
 
-                <button class="diff-btn study-btn" id="start-study-btn">
-                    STUDY MODE (QUIZ)
-                    <span class="diff-desc">10 Questions. 90 Seconds. Test your knowledge.</span>
-                </button>
+                <div style="display: flex; gap: 10px; width: 100%; max-width: 500px;">
+                    <button class="diff-btn study-btn" id="start-study-btn" style="flex: 1; padding: 15px 10px;">
+                        STUDY
+                        <span class="diff-desc" style="font-size: 0.8rem;">Quiz Mode</span>
+                    </button>
+                    <button class="diff-btn" id="word-list-btn"
+                        style="flex: 1; padding: 15px 10px; border-color: #00ffff; color: #00ffff;">
+                        WORD LIST
+                        <span class="diff-desc" style="font-size: 0.8rem;">Database</span>
+                    </button>
+                </div>
             </div>
+        </div>
+
+        <!-- Word List Screen -->
+        <div id="word-list-screen" class="screen">
+            <h2>SECURITY TERMS DATABASE</h2>
+            <input type="text" id="word-search-input" placeholder="Search (JP/EN)..."
+                style="width: 80%; padding: 10px; font-size: 1.2rem; margin-bottom: 10px; border: 1px solid var(--accent-color); background: rgba(0,0,0,0.5); color: var(--text-color); font-family: var(--font-main);">
+            <div id="word-list-container"
+                style="flex: 1; overflow-y: auto; width: 100%; margin: 20px 0; border: 1px solid var(--accent-dim); padding: 10px;">
+                <!-- Populated by JS -->
+            </div>
+            <button id="word-list-back-btn" class="nav-btn">BACK</button>
         </div>
 
         <!-- Intro Screen -->
